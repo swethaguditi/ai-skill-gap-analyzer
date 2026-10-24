@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skill-Gap Analyzer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav>
+        <h2>SkillGap AI</h2>
+        <span>Smart Career Preparation</span>
+    </nav>
+
+    <main>
+        <h1>AI Skill-Gap Analyzer</h1>
+
+        <p class="intro">
+            Discover your skills, identify missing skills,
+            and prepare for your dream job.
+        </p>
+
+        <form action="/analyze"
+              method="POST"
+              enctype="multipart/form-data">
+
+            <label for="resume">Upload your resume (PDF)</label>
+
+            <input type="file"
+                   id="resume"
+                   name="resume"
+                   accept=".pdf"
+                   required>
+
+            <label for="job_description">
+                Paste Your Target Job Description
+            </label>
+
+            <textarea
+                id="job_description"
+                name="job_description"
+                rows="7"
+                placeholder="Paste the job description here, including required skills..."
+                required
+            ></textarea>
+
+            <button type="submit">Analyze My Skills</button>
+        </form>
+    </main>
+
+</body>
+</html>
+

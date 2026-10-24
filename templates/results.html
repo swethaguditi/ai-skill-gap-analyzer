@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill-Gap Analysis Results</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav>
+        <h2>SkillGap AI</h2>
+        <span>Smart Career Preparation</span>
+    </nav>
+
+    <main>
+        <h1>Your Skill-Gap Analysis</h1>
+
+        <!-- Resume Analysis Summary -->
+        {% set total_skills = required_skills|length %}
+        {% set matched_count = total_skills - missing_skills|length %}
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <p class="summary-label">Skill Match</p>
+                <h2>{{ match_percentage }}%</h2>
+                <p class="summary-description">
+                    Overall match score
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <p class="summary-label">Matched Skills</p>
+                <h2>{{ matched_count }}</h2>
+                <p class="summary-description">
+                    Skills found in your resume
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <p class="summary-label">Missing Skills</p>
+                <h2>{{ missing_skills|length }}</h2>
+                <p class="summary-description">
+                    Skills to work on
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <p class="summary-label">Required Skills</p>
+                <h2>{{ total_skills }}</h2>
+                <p class="summary-description">
+                    Skills identified for the job
+                </p>
+            </div>
+
+        </section>
+
+        <!-- Job Skill Match -->
+        <div class="match-card">
+            <h2>Job Skill Match</h2>
+
+            <p class="match-percentage">
+                {{ match_percentage }}%
+            </p>
+
+            <p>
+                You match {{ matched_count }}
+                out of {{ total_skills }} required skills.
+            </p>
+
+            <div class="progress-bar">
+                <div class="progress-fill"
+                     style="width: {{ match_percentage|int }}%;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Skill-Gap Dashboard -->
+        <section class="result-section">
+            <h2>Visual Skill-Gap Dashboard</h2>
+
+            <div style="max-width: 550px; margin: 20px auto;">
+                <canvas
+                    id="skillGapChart"
+                    aria-label="Chart comparing matched and missing skills"
+                    role="img">
+                </canvas>
+            </div>
+
+            <p style="text-align: center;">
+                Compare the skills in your resume with the skills
+                required for your target job.
+            </p>
+        </section>
+
+        <!-- Skills Found in Resume -->
+        <section class="result-section">
+            <h2>Skills Found in Your Resume</h2>
+
+            {% if resume_skills %}
+                <ul>
+                    {% for skill in resume_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No matching skills found in your resume.</p>
+            {% endif %}
+        </section>
+
+        <!-- Required Job Skills -->
+        <section class="result-section">
+            <h2>Skills Required for Your Target Job</h2>
+
+            {% if required_skills %}
+                <ul>
+                    {% for skill in required_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>
+                    No recognized skills found in the job description.
+                </p>
+            {% endif %}
+        </section>
+
+        <!-- Missing Skills -->
+        <section class="result-section">
+            <h2>Skills You Need to Learn</h2>
+
+            {% if missing_skills %}
+                <ul>
+                    {% for skill in missing_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>
+                    Congratulations! No skill gaps were found.
+                </p>
+            {% endif %}
+        </section>
+
+        <!-- Skill-by-Skill Comparison -->
+        <section class="result-section">
+            <h2>Skill-by-Skill Comparison</h2>
+
+            {% if required_skills %}
+                <ul class="skill-comparison-list">
+                    {% for skill in required_skills %}
+                        <li class="skill-comparison-item">
+                            <span>{{ skill }}</span>
+
+                            {% if skill in resume_skills %}
+                                <span class="skill-status matched">
+                                    ✓ Matched
+                                </span>
+                            {% else %}
+                                <span class="skill-status missing">
+                                    ✗ Missing
+                                </span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recognized skills are available to compare.</p>
+            {% endif %}
+        </section>
+
+        <!-- Personalized Learning Recommendations -->
+        <section class="result-section">
+            <h2>Personalized Learning Recommendations</h2>
+
+            {% if recommendations %}
+                {% for item in recommendations %}
+                    <div class="recommendation-card">
+                        <h3>{{ item.skill }}</h3>
+
+                        <p>
+                            <strong>What to learn:</strong>
+                            {{ item.what_to_learn }}
+                        </p>
+
+                        <a href="{{ item.resource }}"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Start Learning
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>
+                    Great job! No missing skills were identified.
+                    Keep practicing to strengthen your knowledge.
+                </p>
+            {% endif %}
+        </section>
+
+        <!-- Download PDF Report -->
+        <form action="/download-report" method="POST">
+            <input type="hidden"
+                   name="match_percentage"
+                   value="{{ match_percentage }}">
+
+            {% for skill in resume_skills %}
+                <input type="hidden"
+                       name="resume_skills"
+                       value="{{ skill }}">
+            {% endfor %}
+
+            {% for skill in required_skills %}
+                <input type="hidden"
+                       name="required_skills"
+                       value="{{ skill }}">
+            {% endfor %}
+
+            {% for skill in missing_skills %}
+                <input type="hidden"
+                       name="missing_skills"
+                       value="{{ skill }}">
+            {% endfor %}
+
+            <button type="submit">Download PDF Report</button>
+        </form>
+
+        <p style="text-align: center;">
+            <a href="/">Analyze Another Resume</a>
+        </p>
+
+    </main>
+
+    <!-- Interactive Skill-Gap Chart -->
+    <script>
+        const matchedSkills = {{ matched_count | tojson }};
+        const missingSkills = {{ missing_skills | length | tojson }};
+
+        new Chart(document.getElementById("skillGapChart"), {
+            type: "doughnut",
+
+            data: {
+                labels: ["Matched Skills", "Missing Skills"],
+                datasets: [{
+                    data: [matchedSkills, missingSkills],
+                    backgroundColor: ["#16a34a", "#f59e0b"],
+                    borderWidth: 2,
+                    borderColor: "#ffffff"
+                }]
+            },
+
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
